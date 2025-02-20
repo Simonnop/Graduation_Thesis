@@ -1,0 +1,180 @@
+﻿README
+
+This is a subset of the SHIFDR dataset collection containing data from 14 buildings in Southeast Michigan. The full dataset collection can be found at  https://deepblue.lib.umich.edu/data/collections/vh53ww273?locale=en
+
+This subset should be cited as:
+A.J. Lin, S. Lei, A. Keskar, I.A. Hiskens, J.X. Johnson, J.L. Mathieu, S. Afshari, D. Anderson, H. Li, S. DeMink, J. Dongmo, C. Flynn, P. Giessner, T. Kennedy, and K. Morgan,  2023. SHIFDR Dataset - Michigan. 
+https://mathieu.engin.umich.edu/shifdr-dataset/
+
+This dataset is available under a Creative Commons License.
+
+Please see the following companion paper for more details on the data and its uses:
+A.J. Lin, S. Lei, A. Keskar, I.A. Hiskens, J.X. Johnson, and J.L. Mathieu. “The Sub-metered HVAC Implemented For Demand Response (SHIFDR) Dataset,” Submitted, 2023.[i]
+
+
+ORGANIZATION
+
+We include a subfolder for each building, identified by name. All buildings have been renamed after lakes to protect the identity of the building. Within each building subfolder, there is fan power (i.e. current measurements from which fan power can be computed), building automation system (BAS), whole building electrical load (WBEL), and voltage data collected over the course of our experimentation from 2017 to 2021. All experiments were conducted in the summer months and a full schedule of Demand Response (DR) events is included along with each building in the ‘Event_Schedule.csv’ file. The building information file contains general information about the buildings, pertinent to the experiments we conducted.
+
+Please note that throughout the entire dataset a cell is intentionally left blank if there is no data or information to report. This usually happens for cells that function as annotations when no comment is needed.
+
+There is also a folder labeled ‘2021 Preprocessed data’ which contains combined BAS and fan power data from the summer of 2021. This data has been lightly processed to calculate fan power from current measurements and interpolate BAS data to 1 minute intervals. These act as an easy-to-use starting point for data analysis. For other years, we did not process the data as completely and as such do not have pre-processed files to share.
+
+There is a metadata file, ‘BuildingInformation.csv’ which contains relevant information about the buildings included. The columns of this file are:
+Building: building name, made anonymous
+Index: number used to reference building when creating Event IDs
+Construction Year: year of construction
+Square Footage: Floor space of building, in square feet
+Annual Energy Consumption: Total energy consumed by the building in a pre-pandemic year, in megamatt-hours
+Chiller Location: Location of chiller used to cool water, either ‘offsite’ or ‘onsite’
+Number of AHUs measured: number of air handler units that were submetered
+Fan Power Data: Years we collected fan power data for that building
+BAS Data: Years we collected BAS data for that building
+WBEL Data: Year we collected whole building electrical load data for that building
+VOLT Data: Years we collected building voltage data for that building
+Experiments Conducted: Years we conducted DR testing in the summer
+Fan Voltage: Average voltage on each phase of the fan that we observed
+BAS Manufacturer: Manufacturer of the BAS
+
+
+
+FAN POWER
+
+Fan power data is stored in the FANPOW folder for each building. All measurements were made with an onset CTV-C 100 amp or onset CTV-D 200 amp split core current sensor and an onset HOBO 4-channel analog logger. Measurements are actually a single phase current measurement, where loggers and sensors are placed in the panel most directly connected to the fan. Power can be calculated from average voltage and power factor:
+
+P = 3*i*V*pf
+
+where P is the fan power, i is the current measurement value, V is the average voltage magnitude, and pf is the average power factor. The assumed average line to neutral voltage for each fan from our analysis of the building voltage data is listed in the building information file.
+
+We have assumed pf = 0.95 for supply fans and pf = 0.99 for return fans, based on 3 phase power, voltage, and current measurements we have previously performed on one building.
+
+Loggers were set to record data with minute resolution. Each minute the loggers would sample the fan current 4 times, and store the maximum, minimum, average, and standard deviation of these values. All measurements were saved in Amps.
+
+Power files contain 7 columns:
+Date: Date measurement was logged
+Time: Time measurement was logged
+Exact: Exact current measurement when logging
+Max: Maximum of the 4 measurements taken
+Min: Minimum of the 4 measurements taken
+Avg: Average of the 4 measurements taken
+Std: standard deviation of the 4 measurements taken
+DownloadData: Indicates with ‘Logged’ if data was downloaded, skipping measurement
+EndOfFile: Indicates with ‘Logged’ if at end of file, skipping measurement
+
+NOTE: Loggers do not automatically switch between standard and daylight savings time. We tried to consistently measure in Eastern Daylight Time throughout the entire year.
+
+
+BAS
+
+BAS data is stored in the BAS subfolder. All buildings use a Siemens BAS. BAS data is typically measured in 5 minute resolution. Each BAS file has a different number of columns depending on what data was being measured. For building security, the measurement labels have been anonymized. We have added the name of each building at the start of each point, such that each point is unique. In general, the measurement labels make use of the abbreviations below. We attempted to make these labels as clear as possible to their function within the building. Generally units follow from the list below, but sometimes ‘kilo’ units are used. Please note this in case any discrepancies arise.
+
+Units used:
+Temperature                  Fahrenheit
+Pressure                     Inches water
+Humidity                     Percentage
+Airflow                      Cubic foot per minute or Kilo cubic foot per minute
+Valve/damper Position        Percentage of all the way open
+Valve Pressure               Pounds per square inch
+Water Flow                   Gallons per minute
+Load Ton                     Cooling/Heating tonnage load
+Energy                       British Thermal Unit
+Fan/Pump AOI                 Milliamps
+
+Common abbreviations used in BAS labels:
+AH                           Air Handler
+AOI                          Pump/fan speed control signal
+BTU                          British Thermal Unit
+CFM                          Cubic feet per minute, air volume measurement
+CHW                          Chilled Water
+CHWR                         Chilled Water Return
+CHWS                         Chilled Water Supply
+CLG                          Cooling
+DA                           Discharge Air, Discharged from the AHU
+DMPR                         Damper
+DPT                          Pressure drop of a water around a chiller or boiler
+EXF                          Exhaust Fan
+FCU                          Fan cooling unit
+HP                           Heat pipe
+HTG                          Heating
+HTW                          Heated Water
+HTWR                         Heated Water return
+HTWS                         Heated Water supply
+HX                           Heat Exchanger
+HUM                          Relative Humidity
+KTON                         Cooling/heating load kilo-tonnage
+KTONHR                       Kiloton hours, integral of load tonnage
+LOOPOUT                      VAV box re-heating/cooling control value output from the control loop
+LOOP                         Heating or cooling water loop number
+MA                           Mixed Air, In economizer
+MODE                         Binary variable, whether the building is in heating or cooling mode
+OA                           Outside Air
+PXP                          Valve Pressure
+PLANTDIST                    Cooling plant distribution information, separate building where water is cooled
+POW                          Power
+POS                          Position, of a valve or damper
+RA                           Return Air
+RF                           Return Fan
+RM                           Room
+SA                           Supply Air, after being cooled by chiller
+SF                           Supply Fan
+SP                           Static Pressure
+STPT                         Setpoint, temperature setpoint of room
+TEMP                         Temperature
+TON                          Cooling/heating load tonnage
+VAV                          Variable Air Volume
+VLV                          Valve
+VLV1                         VAV Recool valve
+VLV2                         VAV Reheat valve
+VP                           Velocity Pressure
+WB                           Wet Bulb
+
+NOTE: Some rooms are not attributed to an air handler because they are fed by multiple air handlers or the air handler they are fed by is not specified.
+
+
+INDIVIDUAL BUILDING EVENT SCHEDULE
+
+In each building folder is a file ‘XXX_Event_Schedule.csv’, where ‘XXX’ is the specific building name. Each row of the table represents a DR event that was conducted in the building. 
+
+Each event is given a unique Event ID. Event IDs are formed as yyBB###. yy is the year the event occurred (e.g. 21 for 2021). BB is the building index number (see building information file). ### is a number to identify the event. 
+
+Each event is marked with a Type. The type refers to how the POWER is expected to change during the event. For example, ‘UD’ would refer to an increase in power followed by a decrease in power. To achieve this, we would have to have a decrease in temperature setpoint followed by an increase in temperature setpoint. The temperature setpoint change is opposite of the expected power change for cooling.  All setpoint changes in an event were the same length and distributed evenly across the event time (e.g. a ‘DU’ event for 1 hour would be down for 30mins then up for 30mins). Occasionally, tests are marked with an “R”, indicating that the setpoint was ramped linearly to the new value. Ramping times are included in the notes for these events. There were also successive single sided events that were conducted on some buildings. In these cases, the first part of the event is indicated in the correct up/down column, while the second change is in the incorrect column. For example, ‘UU’ event with a down change of 1 and an up change of 1.5, refers to two successive up power events, where the setpoint down change was 1°F followed by 1.5°F respectively. 
+
+Event Schedules have 8 columns:
+Event ID: unique number that identifies each event
+Date: Day the event took place
+Start Time: Time when the event first adjusts the temperature setpoint
+End Time: Time when the event returns the temperature setpoint to nominal value
+Type: Type of event that occurs
+Up Change: Increase to temperature setpoint during the ‘D’ portion of the event, in degrees Fahrenheit
+Down Change: Decrease to temperature setpoint during the ‘U’ portion of the event, in degrees Fahrenheit
+Notes: Any notes about the event
+
+
+WHOLE BUILDING ELECTRICAL LOAD
+
+Whole building electrical load data is in the WBEL subfolder. Data is in 1 minute intervals unless otherwise specified in the filename. 
+
+WBEL files have 3 columns:
+Time: date and time of day of the measurement
+Load: Average electrical load between timesteps in kW
+Status: status of the measurements, value of ‘OK’ if the data was measured
+
+NOTE: Aral and Ontario are connected buildings and share an electric meter, resulting in only one WBEL file for both buildings. This is noted in the file name. For the sake of completeness, the same files are placed in both the Aral and Ontario subfolders
+
+
+VOLTAGE DATA
+
+Voltage data is in the VOLT subfolder. Data is in 1 minute intervals unless otherwise specified in the filename. Data is measured immediately after the transformer and typically at 480/277V. The average voltage value for each building is listed in the ‘BuildingInformation.csv’ file. 
+
+Voltage files have up to 4 columns:
+Time: date and time of day of the measurement
+Voltage: average line-to-line voltage between timesteps in Volts
+Min: minimum voltage recorded during the time period
+Status: status of the measurements, value of ‘OK’ if the data was measured
+
+NOTE: Aral and Ontario are connected buildings and share an electric meter, resulting in only one voltage file for both buildings. This is noted in the file name. For the sake of completeness, the same files are placed in both the Aral and Ontario subfolders
+
+
+2021 PREPROCESSED DATA
+
+The 2021 preprocessed data uses data from the 6 buildings that were experimented on in 2021: Aral, Caspian, Huron, Michigan, Superior, Victoria. For each building, the fan power is calculated from the Avg current measurement for each fan. We also calculate the total fan power as the sum of all the fan powers. The BAS data is linearly interpolated to 1 minute resolution to match the fan power data. The data is combined into a single CSV file for each building, with data from July 19, 2021 to October 1, 2021. Power measurements are denoted with ‘POW’ in the column header. The date column follows ISO 8601 standards and the time of day is given in minutes (e.g. 635 = 10:35AM). For 2021 all buildings underwent the same event schedule, which has been included for your convenience.

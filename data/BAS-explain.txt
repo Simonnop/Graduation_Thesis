@@ -1,0 +1,48 @@
+
+Common abbreviations used in BAS labels:
+AH                           Air Handler
+AOI                          Pump/fan speed control signal
+BTU                          British Thermal Unit
+CFM                          Cubic feet per minute, air volume measurement
+CHW                          Chilled Water
+CHWR                         Chilled Water Return
+CHWS                         Chilled Water Supply
+CLG                          Cooling
+DA                           Discharge Air, Discharged from the AHU
+DMPR                         Damper
+DPT                          Pressure drop of a water around a chiller or boiler
+EXF                          Exhaust Fan
+FCU                          Fan cooling unit
+HP                           Heat pipe
+HTG                          Heating
+HTW                          Heated Water
+HTWR                         Heated Water return
+HTWS                         Heated Water supply
+HX                           Heat Exchanger
+HUM                          Relative Humidity
+KTON                         Cooling/heating load kilo-tonnage
+KTONHR                       Kiloton hours, integral of load tonnage
+LOOPOUT                      VAV box re-heating/cooling control value output from the control loop
+LOOP                         Heating or cooling water loop number
+MA                           Mixed Air, In economizer
+MODE                         Binary variable, whether the building is in heating or cooling mode
+OA                           Outside Air
+PXP                          Valve Pressure
+PLANTDIST                    Cooling plant distribution information, separate building where water is cooled
+POW                          Power
+POS                          Position, of a valve or damper
+RA                           Return Air
+RF                           Return Fan
+RM                           Room
+SA                           Supply Air, after being cooled by chiller
+SF                           Supply Fan
+SP                           Static Pressure
+STPT                         Setpoint, temperature setpoint of room
+TEMP                         Temperature
+TON                          Cooling/heating load tonnage
+VAV                          Variable Air Volume
+VLV                          Valve
+VLV1                         VAV Recool valve
+VLV2                         VAV Reheat valve
+VP                           Velocity Pressure
+WB                           Wet Bulb
