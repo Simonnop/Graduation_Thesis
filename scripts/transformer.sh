@@ -5,19 +5,16 @@ model_name="Transformer"
 data="Huron"
 
 # 网络结构参数
-input_size=6      # 输入特征维度
-output_size=48    # 输出维度
+input_size=6      # 必需参数：输入特征维度
+hidden_size=256   # 必需参数：隐藏层大小
+output_size=48    # 必需参数：输出维度
 time_window=288   # 时间窗口大小
-
-# Transformer特有参数
-d_model=32        # 模型维度(必须能被nhead整除)
-nhead=4           # 注意力头数
-num_encoder_layers=2  # 编码器层数
-num_decoder_layers=2  # 解码器层数
-dim_feedforward=128   # 前馈网络维度
+num_layers=2      # Transformer特有参数：编码器层数
+n_heads=8         # Transformer特有参数：注意力头数
+d_ff=1024        # Transformer特有参数：前馈网络维度
 
 # 训练参数
-learning_rate=0.001
+learning_rate=0.0001
 train_epochs=100
 batch_size=32
 patience=10
@@ -28,13 +25,12 @@ python run.py \
   --model $model_name \
   --data $data \
   --input_size $input_size \
+  --hidden_size $hidden_size \
   --output_size $output_size \
   --time_window $time_window \
-  --d_model $d_model \
-  --nhead $nhead \
-  --num_encoder_layers $num_encoder_layers \
-  --num_decoder_layers $num_decoder_layers \
-  --dim_feedforward $dim_feedforward \
+  --num_layers $num_layers \
+  --n_heads $n_heads \
+  --d_ff $d_ff \
   --learning_rate $learning_rate \
   --train_epochs $train_epochs \
   --batch_size $batch_size \
@@ -47,13 +43,12 @@ python run.py \
   --model $model_name \
   --data $data \
   --input_size $input_size \
+  --hidden_size $hidden_size \
   --output_size $output_size \
   --time_window $time_window \
-  --d_model $d_model \
-  --nhead $nhead \
-  --num_encoder_layers $num_encoder_layers \
-  --num_decoder_layers $num_decoder_layers \
-  --dim_feedforward $dim_feedforward \
+  --num_layers $num_layers \
+  --n_heads $n_heads \
+  --d_ff $d_ff \
   --batch_size $batch_size \
   --loss "MSE"
 

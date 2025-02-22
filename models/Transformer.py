@@ -19,58 +19,49 @@ class PositionalEncoding(nn.Module):
 class Model(nn.Module):
     def __init__(self, args):
         super(Model, self).__init__()
-        self.input_size = args.input_size
-        self.d_model = args.d_model
-        self.nhead = args.nhead
-        self.num_encoder_layers = args.num_encoder_layers
-        self.num_decoder_layers = args.num_decoder_layers
-        self.dim_feedforward = args.dim_feedforward
+        
+        # 基本参数设置
+        self.time_window = args.time_window
         self.output_size = args.output_size
-        self.dropout = args.dropout_rate
-        
-        # 输入映射层
-        self.encoder_input_proj = nn.Linear(self.input_size, self.d_model)
-        self.decoder_input_proj = nn.Linear(self.input_size, self.d_model)
-        self.positional_encoding = PositionalEncoding(self.d_model)
-        
-        # Transformer层
-        self.transformer = nn.Transformer(
-            d_model=self.d_model,
-            nhead=self.nhead,
-            num_encoder_layers=self.num_encoder_layers,
-            num_decoder_layers=self.num_decoder_layers,
-            dim_feedforward=self.dim_feedforward,
-            dropout=self.dropout,
-            batch_first=True
-        )
-        
-        # 输出映射层
-        self.output_proj = nn.Linear(self.d_model, 1)
-    
-    def forward(self, src, tgt):
-        # src: [batch_size, src_seq_len, input_size]
-        # tgt: [batch_size, tgt_seq_len, input_size]
-        
-        # 输入映射
-        src = self.encoder_input_proj(src)  # [batch_size, src_seq_len, d_model]
-        tgt = self.decoder_input_proj(tgt)  # [batch_size, tgt_seq_len, d_model]
         
         # 位置编码
-        src = self.positional_encoding(src)
-        tgt = self.positional_encoding(tgt)
+        self.pos_encoder = PositionalEncoding(args.hidden_size)
         
-        # 创建掩码
-        tgt_mask = self.transformer.generate_square_subsequent_mask(tgt.size(1)).to(src.device)
+        # 输入投影
+        self.input_projection = nn.Linear(args.input_size, args.hidden_size)
         
-        # Transformer前向传播
-        out = self.transformer(
-            src,
-            tgt,
-            tgt_mask=tgt_mask
-        )  # [batch_size, tgt_seq_len, d_model]
+        # Transformer 编码器
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=args.hidden_size,
+            nhead=args.n_heads,
+            dim_feedforward=args.d_ff,
+            dropout=args.dropout_rate,
+            batch_first=True
+        )
+        self.transformer_encoder = nn.TransformerEncoder(
+            encoder_layer,
+            num_layers=args.num_layers
+        )
         
-        # 输出映射
-        out = self.output_proj(out)  # [batch_size, tgt_seq_len, 1]
-        out = out.squeeze(-1)  # [batch_size, tgt_seq_len]
+        # 输出层
+        self.projection = nn.Linear(args.hidden_size, args.output_size)
         
-        return out 
+    def forward(self, x_enc, x_dec):
+        # x_enc: [Batch, time_window, input_size]
+        
+        # 输入投影
+        x = self.input_projection(x_enc)
+        
+        # 位置编码
+        x = self.pos_encoder(x)
+        
+        # Transformer 编码器
+        output = self.transformer_encoder(x)
+        
+        # 只使用最后一个时间步的输出进行预测
+        last_hidden = output[:, -1, :]
+        
+        # 生成预测序列
+        predictions = self.projection(last_hidden)
+        
+        return predictions 

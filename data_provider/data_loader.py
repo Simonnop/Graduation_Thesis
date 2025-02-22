@@ -103,13 +103,20 @@ class Seq2Seq_DR_Dataset(Dataset):
         x_decoder_up_change = self.normalized_changes[decoder_begin:decoder_end, 0]
         x_decoder_down_change = self.normalized_changes[decoder_begin:decoder_end, 1]
 
+        x_zero = np.zeros_like(x_decoder_hour)
+
         decoder_x = np.column_stack((
+            x_zero,
             x_decoder_hour/24.0,  # 归一化时间
             x_decoder_day/7.0,    # 归一化星期
             x_decoder_event/len(self.event_encoder.classes_),  # 归一化事件类型
             x_decoder_up_change,
             x_decoder_down_change
         ))
+
+        # 将encoder和decoder序列拼接在一起
+        encoder_x = torch.FloatTensor(encoder_x)  # [time_window, input_size]
+        decoder_x = torch.FloatTensor(decoder_x)  # [output_size, input_size]
         
         # 获取目标序列
         y = self.normalized_power[decoder_begin:decoder_end]

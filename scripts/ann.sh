@@ -35,7 +35,7 @@ patience=10
 
 # 运行测试
 python run.py \
-  --is_training 0 \
+  --is_training 1 \
   --model $model_name \
   --data $data \
   --input_size $input_size \

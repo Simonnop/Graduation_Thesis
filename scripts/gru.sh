@@ -6,7 +6,7 @@ data="Huron"
 
 # 网络结构参数
 input_size=6      # 必需参数：输入特征维度
-hidden_size=64   # 必需参数：隐藏层大小
+hidden_size=64    # 必需参数：隐藏层大小
 output_size=48    # 必需参数：输出维度
 num_layers=1      # GRU特有参数：GRU层数
 time_window=288   # 时间窗口大小

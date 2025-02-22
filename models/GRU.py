@@ -4,34 +4,33 @@ import torch.nn as nn
 class Model(nn.Module):
     def __init__(self, args):
         super(Model, self).__init__()
-        self.input_size = args.input_size
-        self.hidden_size = args.hidden_size
-        self.num_layers = args.num_layers
+        
+        # 基本参数设置
+        self.time_window = args.time_window
         self.output_size = args.output_size
-        self.dropout = args.dropout_rate
         
-        # 为decoder输入添加额外的线性层
-        self.decoder_proj = nn.Linear(5, self.input_size)  # 5 -> 6
-        self.gru = nn.GRU(self.input_size, self.hidden_size, self.num_layers,
-                         batch_first=True, dropout=self.dropout)
-        self.fc = nn.Linear(self.hidden_size, 1)  # 每个时间步预测一个值
+        # GRU 层
+        self.gru = nn.GRU(
+            input_size=args.input_size,
+            hidden_size=args.hidden_size,
+            num_layers=args.num_layers,
+            batch_first=True,
+            dropout=args.dropout_rate
+        )
+        
+        # 输出层
+        self.projection = nn.Linear(args.hidden_size, args.output_size)
     
-    def forward(self, batch_x_encoder, batch_x_decoder):
-        # batch_x_encoder: [batch_size, encoder_seq_len, input_size]
-        # batch_x_decoder: [batch_size, decoder_seq_len, input_size-1]
+    def forward(self, x_enc, x_dec):
+        # x_enc: [Batch, time_window, input_size]
         
-        # 1. 使用encoder数据获取隐藏状态
-        h0 = torch.zeros(self.num_layers, batch_x_encoder.size(0), self.hidden_size).to(batch_x_encoder.device)
-        _, hidden = self.gru(batch_x_encoder, h0)
+        # GRU 前向传播
+        output, _ = self.gru(x_enc)
         
-        # 2. 将decoder输入投影到正确的维度
-        decoder_input = self.decoder_proj(batch_x_decoder)
+        # 只使用最后一个时间步的输出进行预测
+        last_hidden = output[:, -1, :]
         
-        # 3. 使用encoder的隐藏状态和处理后的decoder数据进行预测
-        decoder_output, _ = self.gru(decoder_input, hidden)
-        
-        # 4. 对每个时间步进行预测
-        predictions = self.fc(decoder_output)  # [batch_size, decoder_seq_len, 1]
-        predictions = predictions.squeeze(-1)  # [batch_size, decoder_seq_len]
+        # 生成预测序列
+        predictions = self.projection(last_hidden)
         
         return predictions 

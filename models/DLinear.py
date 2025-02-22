@@ -16,16 +16,16 @@ class Model(nn.Module):
             self.Linear_Seasonal = nn.ModuleList()
             self.Linear_Trend = nn.ModuleList()
             
-            self.Linear_Seasonal.append(nn.Linear(self.seq_len, self.pred_len))
-            self.Linear_Trend.append(nn.Linear(self.seq_len, self.pred_len))
+            self.Linear_Seasonal.append(nn.Linear(self.seq_len + self.pred_len, self.pred_len))
+            self.Linear_Trend.append(nn.Linear(self.seq_len + self.pred_len, self.pred_len))
         else:
-            self.Linear_Seasonal = nn.Linear(self.seq_len, self.pred_len)
-            self.Linear_Trend = nn.Linear(self.seq_len, self.pred_len)
+            self.Linear_Seasonal = nn.Linear(self.seq_len + self.pred_len, self.pred_len)
+            self.Linear_Trend = nn.Linear(self.seq_len + self.pred_len, self.pred_len)
 
-    def forward(self, batch_x_encoder, batch_x_decoder=None):
+    def forward(self, batch_x_encoder, batch_x_decoder):
         # batch_x_encoder: [Batch, Input length, Channel]
         # 我们只使用encoder的输入进行预测
-        x = batch_x_encoder
+        x = torch.cat((batch_x_encoder, batch_x_decoder),dim=1)
         
         # 趋势分解
         seasonal_init, trend_init = self.decomp(x)

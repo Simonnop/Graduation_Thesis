@@ -71,6 +71,10 @@ class Exp_Forecast(Exp_Basic):
                 batch_x_decoder = batch_x_decoder.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
 
+                # # 打印输入数据的形状
+                # print("编码器输入形状:", batch_x_encoder.shape)
+                # print("解码器输入形状:", batch_x_decoder.shape)
+
                 outputs = self.model(batch_x_encoder, batch_x_decoder)
 
                 # loss_value = criterion(None,None,batch_y,outputs,torch.ones_like(outputs))

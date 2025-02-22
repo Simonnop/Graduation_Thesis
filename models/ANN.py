@@ -8,7 +8,7 @@ class Model(nn.Module):
         
         # 基本参数设置
         self.encoder_input_dim = args.input_size
-        self.decoder_input_dim = args.input_size - 1
+        self.decoder_input_dim = args.input_size
         self.hidden_dim = args.hidden_size
         self.output_dim = args.output_size
         
@@ -26,7 +26,7 @@ class Model(nn.Module):
             ])
             input_size = self.hidden_dim
         self.encoder = nn.Sequential(*encoder_layers)
-        
+
         # 解码器网络
         self.decoder = nn.Sequential(
             nn.Linear(self.hidden_dim + self.decoder_input_dim * self.output_dim, self.hidden_dim),
@@ -47,7 +47,7 @@ class Model(nn.Module):
         batch_size = x_enc.shape[0]
         
         # 展平编码器输入
-        x_enc_flat = x_enc.reshape(batch_size, -1)
+        x_enc_flat = x_enc.reshape(batch_size, -1)        
         # 通过编码器
         enc_output = self.encoder(x_enc_flat)
         

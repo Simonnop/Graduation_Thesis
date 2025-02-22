@@ -21,6 +21,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
+    # 基础参数
     parser.add_argument(
         "--is_training", type=int, required=True, default=1, help="status"
     )
@@ -29,76 +30,52 @@ if __name__ == "__main__":
         type=str,
         required=True,
         default="ANN",
-        help="model name, options: [...]",
+        help="model name, options: [ANN, DLinear, LSTM, GRU, TCN, Transformer]",
     )
 
-    # 任务描述
-    parser.add_argument("--des", type=str, default="test", help="exp description")
-
-    # data loader
-    parser.add_argument(
-        "--data", type=str, required=True, default="ETTm1", help="dataset type"
-    )
-
-    # path
-    parser.add_argument(
-        "--checkpoints",
-        type=str,
-        default="./checkpoints/",
-        help="location of model checkpoints",
-    )
-
-    # # model define
-    parser.add_argument("--time_window", type=int, required=False, default=1, help="时间窗口大小")
-    parser.add_argument("--input_size", type=int, required=True, help="输入特征的大小")
-    parser.add_argument("--hidden_size", type=int, required=False, help="隐藏层的大小")
-    parser.add_argument("--output_size", type=int, required=True, help="输出特征的大小")
-    parser.add_argument("--num_class", type=int, required=False, default=2, help="分类的类别数")
-    parser.add_argument("--dropout_rate", type=float, default=0.1, help="dropout比率")
-    parser.add_argument(
-        "--num_hidden_layers", type=int, required=False, help="隐藏层的数量"
-    )
-
-    # TCN 特有参数
-    parser.add_argument("--kernel_size", type=int, default=2, help="TCN的卷积核大小")
-    parser.add_argument("--num_channels", type=list, default=[64,128], help="TCN每层通道数")
-
-    # LSTM/GRU 特有参数
-    parser.add_argument("--num_layers", type=int, default=2, help="LSTM/GRU的层数")
+    # 数据参数
+    parser.add_argument("--data", type=str, required=True, default="ETTm1", help="dataset type")
+    parser.add_argument("--features", type=str, default="M",
+                      help="forecasting task, options:[M, S, MS]")
+    
+    # 通用模型参数
+    parser.add_argument("--time_window", type=int, default=96, help="input sequence length")
+    parser.add_argument("--input_size", type=int, required=True, help="input feature size")
+    parser.add_argument("--hidden_size", type=int, default=512, help="hidden layer dimension")
+    parser.add_argument("--output_size", type=int, required=True, help="output size")
+    parser.add_argument("--num_hidden_layers", type=int, default=2, help="number of hidden layers")
+    parser.add_argument("--dropout_rate", type=float, default=0.1, help="dropout rate")
 
     # DLinear 特有参数
-    parser.add_argument("--individual", type=bool, default=True, help="是否对每个特征单独建模")
-    parser.add_argument("--decomp_kernel", type=int, default=25, help="分解的kernel大小")
+    parser.add_argument("--individual", type=bool, default=True, help="DLinear: individual modeling for each dimension")
+    parser.add_argument("--decomp_kernel", type=int, default=25, help="DLinear: decomposition kernel size")
+
+    # LSTM/GRU 特有参数
+    parser.add_argument("--num_layers", type=int, default=2, help="number of LSTM/GRU layers")
+
+    # TCN 特有参数
+    parser.add_argument("--kernel_size", type=int, default=3, help="TCN kernel size")
+    parser.add_argument("--num_channels", nargs='+', type=int, default=[64, 128, 256], 
+                        help="TCN channel numbers")
 
     # Transformer 特有参数
-    parser.add_argument("--d_model", type=int, default=512, help="Transformer的特征维度")
-    parser.add_argument("--nhead", type=int, default=8, help="注意力头数")
-    parser.add_argument("--num_encoder_layers", type=int, default=3, help="编码器层数")
-    parser.add_argument("--num_decoder_layers", type=int, default=3, help="解码器层数")
-    parser.add_argument("--dim_feedforward", type=int, default=2048, help="前馈网络维度")
+    parser.add_argument("--d_model", type=int, default=512, help="Transformer model dimension")
+    parser.add_argument("--n_heads", type=int, default=8, help="Transformer head number")
+    parser.add_argument("--d_ff", type=int, default=2048, help="Transformer feedforward dimension")
 
-    # optimization
-    parser.add_argument("--train_epochs", type=int, default=10, help="train epochs")
-    parser.add_argument(
-        "--batch_size", type=int, default=32, help="batch size of train input data"
-    )
-    parser.add_argument(
-        "--patience", type=int, default=3, help="early stopping patience"
-    )
-    parser.add_argument(
-        "--learning_rate", type=float, default=0.0001, help="optimizer learning rate"
-    )
+    # 优化器参数
+    parser.add_argument("--train_epochs", type=int, default=100, help="train epochs")
+    parser.add_argument("--batch_size", type=int, default=32, help="batch size")
+    parser.add_argument("--learning_rate", type=float, default=0.001, help="learning rate")
     parser.add_argument("--loss", type=str, default="MSE", help="loss function")
-    parser.add_argument(
-        "--lradj", type=str, default="type1", help="adjust learning rate"
-    )
+    parser.add_argument("--patience", type=int, default=3, help="early stopping patience")
 
     # GPU
     parser.add_argument("--use_gpu", type=bool, default=True, help="use gpu")
     parser.add_argument("--gpu", type=int, default=0, help="gpu")
+    parser.add_argument("--checkpoints", type=str, default="./checkpoints/", help="location of model checkpoints")
 
     args = parser.parse_args()
-    # args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
     args.use_gpu = True if torch.cuda.is_available() else False
 
     print("Args in experiment:")
@@ -106,14 +83,28 @@ if __name__ == "__main__":
     print("参数设置:")
     print(f"是否训练: {args.is_training}")
     print(f"模型名称: {args.model}")
-    print(f"描述: {args.des}")
     print(f"数据集类型: {args.data}")
     print(f"时间窗口大小: {args.time_window}")
     print(f"输入特征大小: {args.input_size}")
     print(f"隐藏层大小: {args.hidden_size}")
     print(f"输出特征大小: {args.output_size}")
-    print(f"dropout比率: {args.dropout_rate}")
     print(f"隐藏层数量: {args.num_hidden_layers}")
+    print(f"dropout比率: {args.dropout_rate}")
+
+    # 根据模型类型打印特有参数
+    if args.model == "DLinear":
+        print(f"是否独立建模: {args.individual}")
+        print(f"分解核大小: {args.decomp_kernel}")
+    elif args.model in ["LSTM", "GRU"]:
+        print(f"循环层数: {args.num_layers}")
+    elif args.model == "TCN":
+        print(f"卷积核大小: {args.kernel_size}")
+        print(f"通道数: {args.num_channels}")
+    elif args.model == "Transformer":
+        print(f"模型维度: {args.d_model}")
+        print(f"注意力头数: {args.n_heads}")
+        print(f"前馈网络维度: {args.d_ff}")
+
     print(f"训练轮数: {args.train_epochs}")
     print(f"批量大小: {args.batch_size}")
     print(f"学习率: {args.learning_rate}")
