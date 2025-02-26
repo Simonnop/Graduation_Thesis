@@ -2,9 +2,52 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import os
+import platform
+import matplotlib.font_manager as fm
 
-plt.rcParams['font.sans-serif'] = ['Arial Unicode MS']  # Mac系统的中文字体
-plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
+# 设置中文字体
+def set_chinese_font():
+    system = platform.system()
+    
+    # 获取系统上所有可用的字体
+    font_names = [f.name for f in fm.fontManager.ttflist]
+    
+    # 根据不同操作系统设置默认字体
+    if system == 'Darwin':  # macOS
+        if 'Arial Unicode MS' in font_names:
+            plt.rcParams['font.sans-serif'] = ['Arial Unicode MS']
+        elif 'PingFang SC' in font_names:
+            plt.rcParams['font.sans-serif'] = ['PingFang SC']
+        elif 'Heiti SC' in font_names:
+            plt.rcParams['font.sans-serif'] = ['Heiti SC']
+    elif system == 'Windows':  # Windows
+        if 'Microsoft YaHei' in font_names:
+            plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']
+        elif 'SimHei' in font_names:
+            plt.rcParams['font.sans-serif'] = ['SimHei']
+    elif system == 'Linux':  # Linux
+        if 'WenQuanYi Micro Hei' in font_names:
+            plt.rcParams['font.sans-serif'] = ['WenQuanYi Micro Hei']
+        elif 'Noto Sans CJK JP' in font_names:
+            plt.rcParams['font.sans-serif'] = ['Noto Sans CJK JP']
+        elif 'Noto Sans CJK SC' in font_names:
+            plt.rcParams['font.sans-serif'] = ['Noto Sans CJK SC']
+        elif 'DejaVu Sans' in font_names:
+            plt.rcParams['font.sans-serif'] = ['DejaVu Sans']
+    
+    # 设置负号显示
+    plt.rcParams['axes.unicode_minus'] = False
+    
+    # 增大字体大小（进一步增大）
+    plt.rcParams['font.size'] = 18
+    plt.rcParams['axes.titlesize'] = 20
+    plt.rcParams['axes.labelsize'] = 18
+    plt.rcParams['xtick.labelsize'] = 16
+    plt.rcParams['ytick.labelsize'] = 16
+    plt.rcParams['legend.fontsize'] = 16
+
+# 调用字体设置函数
+set_chinese_font()
 
 
 def load_and_process_data(data_path):
@@ -56,8 +99,8 @@ def plot_single_day_dr(target_time, data_name=None):  # 修改参数名以更清
     # 创建图形
     fig, ax = plt.subplots(figsize=(15, 8))
 
-    # 绘制全天数据
-    ax.plot(daily_data.index, daily_data['power'], 'b-', alpha=0.7, label='总功率')
+    # 绘制全天数据，进一步增加线条粗细
+    ax.plot(daily_data.index, daily_data['power'], 'b-', alpha=0.7, label='总功率', linewidth=3.5)
 
     # 标记需求响应事件区间，根据类型使用不同颜色
     event_periods = daily_data[daily_data['event_type'] != 'N']
@@ -81,7 +124,7 @@ def plot_single_day_dr(target_time, data_name=None):  # 修改参数名以更清
         # 记录已添加到图例的事件类型
         legend_added.add(event_type)
         
-        # 添加事件信息标注
+        # 添加事件信息标注，进一步增大字体大小
         event_info = event_data.iloc[0]
         info_text = (f'类型：{event_type}\n'
                     f'上调：{event_info["up_change"]:.1f}\n下调：{event_info["down_change"]:.1f}')
@@ -89,18 +132,20 @@ def plot_single_day_dr(target_time, data_name=None):  # 修改参数名以更清
         ax.text(event_data.index[0], ax.get_ylim()[1] * 0.1, info_text,
                 horizontalalignment='left',
                 verticalalignment='bottom',
-                bbox=dict(facecolor='white', alpha=0.8, edgecolor=color))
+                bbox=dict(facecolor='white', alpha=0.8, edgecolor=color),
+                fontsize=16)
 
-    # 设置图表标题和标签
-    ax.set_title(f'建筑总功率和需求响应事件 ({target_date})')
-    ax.set_xlabel('时间')
-    ax.set_ylabel('功率 (kW)')
+    # 设置图表标签（使用空标题）
+    ax.set_title(" ", fontsize=20)
+    ax.set_xlabel('时间', fontsize=18)
+    ax.set_ylabel('功率 (kW)', fontsize=18)
     ax.grid(True)
-    ax.legend()
+    ax.legend(fontsize=16)
 
     # 设置x轴格式
-    ax.xaxis.set_major_locator(mdates.HourLocator(interval=1))
+    ax.xaxis.set_major_locator(mdates.HourLocator(interval=3))
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
+    ax.tick_params(axis='both', which='major', labelsize=16)
 
     # 调整布局
     plt.tight_layout()
@@ -159,7 +204,7 @@ def main(data_name, target_time):
         print(traceback.format_exc())
 
 if __name__ == "__main__":
-    target_time = '2021-09-28'
-    data_name = 'Victoria'
-    # data_name = 'Huron'
+    target_time = '2021-09-17'
+    # data_name = 'Victoria'
+    data_name = 'Huron'
     main(data_name, target_time)

@@ -31,8 +31,10 @@ class Seq2Seq_DR_Dataset(Dataset):
             self.data = data[:train_split]
         elif flag == 'val':
             self.data = data[train_split:val_split]
-        else:  # test
+        elif flag == 'test':  # test
             self.data = data[val_split:]
+        else: 
+            self.data = data
         
         # 确保数据按时间排序
         self.data = self.data.sort_values('timestamp').reset_index(drop=True)

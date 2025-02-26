@@ -66,7 +66,8 @@ class Model(nn.Module):
         
     def forward(self, x_enc, x_dec):
         # x_enc: [Batch, time_window, input_size]
-        x = x_enc.transpose(1, 2)  # TCN expects [Batch, Channel, Length]
+        x = torch.cat((x_enc, x_dec),dim=1)
+        x = x.transpose(1, 2)  # TCN expects [Batch, Channel, Length]
         
         # TCN 前向传播
         output = self.tcn(x)

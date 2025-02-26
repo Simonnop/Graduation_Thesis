@@ -10,9 +10,28 @@ import time
 import warnings
 import numpy as np
 import pandas
+import matplotlib.pyplot as plt
 
 warnings.filterwarnings('ignore')
 
+def weighted_loss(true, pred, dr, weight):
+        # true: [batch, output_len]
+        # pred: [batch, output_len]
+        # dr: [batch, output_len, 2]
+        # 计算基础MSE损失
+        mse = torch.mean((true - pred) ** 2, dim=1)  # [batch]
+        
+        # 检查dr中是否两个数都为0
+        both_zero = torch.all(dr == 0, dim=2)  # [batch, output_len]
+        
+        # 对于dr都为0的位置,loss使用weight参数
+        weights = torch.ones_like(both_zero, dtype=torch.float32)
+        weights[both_zero] = weight
+        
+        # 计算加权后的损失
+        weighted_mse = mse * torch.mean(weights, dim=1)  # [batch]
+        
+        return torch.mean(weighted_mse)  # 标量
 
 class Exp_Forecast(Exp_Basic):
     def __init__(self, args):
@@ -39,6 +58,8 @@ class Exp_Forecast(Exp_Basic):
             return mase_loss()
         elif loss_name == 'SMAPE':
             return smape_loss()
+        elif loss_name == 'Weighted':
+            return weighted_loss
 
     def train(self, setting):
         _, train_loader = self._get_data(flag='train')
@@ -81,7 +102,10 @@ class Exp_Forecast(Exp_Basic):
                 # 打印预测值和真实值的形状
                 # print("预测值形状:", outputs.shape)
                 # print("真实值形状:", batch_y.shape)
-                loss_value = criterion(batch_y, outputs)
+                if self.args.loss == 'Weighted':
+                    loss_value = criterion(batch_y, outputs,batch_x_decoder[:,:,-2:], self.args.weight)
+                else:
+                    loss_value = criterion(batch_y, outputs)
 
                 loss = loss_value
                 train_loss.append(loss.item())
@@ -117,7 +141,7 @@ class Exp_Forecast(Exp_Basic):
 
     def vali(self, vali_loader, criterion):
         self.model.eval()
-        criterion = self._select_criterion(self.args.loss)
+        criterion = self._select_criterion("MSE")
         vali_loss = []
         with torch.no_grad():
             # decoder input
@@ -141,8 +165,8 @@ class Exp_Forecast(Exp_Basic):
         return vali_loss
 
     def test(self, setting, test=0):
-        test_set, test_loader = self._get_data(flag='test')  # 获取数据集对象以访问归一化参数
-        criterion = self._select_criterion(self.args.loss)
+        test_set, test_loader = self._get_data(flag='all')  # 获取数据集对象以访问归一化参数
+        criterion = self._select_criterion("MSE")
 
         if test:
             print('loading model')
@@ -186,6 +210,18 @@ class Exp_Forecast(Exp_Basic):
 
         # 使用calcu_loss计算各项指标
         metrics = calcu_loss(torch.from_numpy(predictions), torch.from_numpy(true_values))
+
+        # 绘制预测结果与真实值的对比图
+        plt.figure(figsize=(12, 6))
+        plt.plot(predictions[:200000], label='预测值', color='red', alpha=0.7)
+        plt.plot(true_values[:200000], label='真实值', color='blue', alpha=0.7)
+        plt.title('预测结果对比')
+        plt.xlabel('时间步')
+        plt.ylabel('功率值')
+        plt.legend()
+        plt.grid(True)
+        plt.savefig(os.path.join(folder_path, 'prediction_plot.png'))
+        plt.close()
         
         # 保存结果到CSV
         results_path = f'./results/metrics_{self.args.data}.csv'

@@ -48,9 +48,10 @@ class Model(nn.Module):
         
     def forward(self, x_enc, x_dec):
         # x_enc: [Batch, time_window, input_size]
+        x = torch.cat((x_enc, x_dec),dim=1)
         
         # 输入投影
-        x = self.input_projection(x_enc)
+        x = self.input_projection(x)
         
         # 位置编码
         x = self.pos_encoder(x)

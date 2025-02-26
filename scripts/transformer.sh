@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export CUDA_VISIBLE_DEVICES=1
+
 # 设置模型参数
 model_name="Transformer"
 data="Huron"
@@ -14,16 +16,18 @@ n_heads=8         # Transformer特有参数：注意力头数
 d_ff=1024        # Transformer特有参数：前馈网络维度
 
 # 训练参数
-learning_rate=0.0001
-train_epochs=100
+learning_rate=0.005
+train_epochs=30
 batch_size=32
-patience=10
+patience=3
+weight=5.0
 
 # 运行训练
 python run.py \
   --is_training 1 \
   --model $model_name \
   --data $data \
+  --use_gpu True \
   --input_size $input_size \
   --hidden_size $hidden_size \
   --output_size $output_size \
@@ -35,13 +39,15 @@ python run.py \
   --train_epochs $train_epochs \
   --batch_size $batch_size \
   --patience $patience \
-  --loss "MSE"
+  --weight $weight \
+  --loss "Weighted"
 
 # 运行测试
 python run.py \
   --is_training 0 \
   --model $model_name \
   --data $data \
+  --use_gpu True \
   --input_size $input_size \
   --hidden_size $hidden_size \
   --output_size $output_size \
@@ -50,6 +56,7 @@ python run.py \
   --n_heads $n_heads \
   --d_ff $d_ff \
   --batch_size $batch_size \
-  --loss "MSE"
+  --weight $weight \
+  --loss "Weighted"
 
 echo "脚本运行完成！" 

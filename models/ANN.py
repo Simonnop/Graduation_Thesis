@@ -18,7 +18,7 @@ class Model(nn.Module):
         # 构建多层编码器网络
         encoder_layers = []
         input_size = self.encoder_input_dim * self.time_window
-        for _ in range(args.num_hidden_layers):
+        for _ in range(args.num_layers):
             encoder_layers.extend([
                 nn.Linear(input_size, self.hidden_dim),
                 nn.ReLU(),

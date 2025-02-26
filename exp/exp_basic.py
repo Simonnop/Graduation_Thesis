@@ -1,7 +1,7 @@
 
 import os
 import torch
-from models import ANN, DLinear, GRU, LSTM, TCN, Transformer
+from models import ANN, DLinear, GRU, LSTM, TCN, DLinearformer, Transformer, DLinearGRU
 
 
 class Exp_Basic(object):
@@ -15,7 +15,9 @@ class Exp_Basic(object):
             'GRU': GRU,
             'LSTM': LSTM,
             'TCN': TCN,
-            'Transformer': Transformer
+            'Transformer': Transformer,
+            'DLinearformer': DLinearformer,
+            'DLinearGRU': DLinearGRU
         }
         
         self.device = self._acquire_device()

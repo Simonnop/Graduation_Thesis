@@ -43,7 +43,6 @@ if __name__ == "__main__":
     parser.add_argument("--input_size", type=int, required=True, help="input feature size")
     parser.add_argument("--hidden_size", type=int, default=512, help="hidden layer dimension")
     parser.add_argument("--output_size", type=int, required=True, help="output size")
-    parser.add_argument("--num_hidden_layers", type=int, default=2, help="number of hidden layers")
     parser.add_argument("--dropout_rate", type=float, default=0.1, help="dropout rate")
 
     # DLinear 特有参数
@@ -68,7 +67,11 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", type=int, default=32, help="batch size")
     parser.add_argument("--learning_rate", type=float, default=0.001, help="learning rate")
     parser.add_argument("--loss", type=str, default="MSE", help="loss function")
+    parser.add_argument("--weight", type=float, default=5.0, help="weight for loss function")
     parser.add_argument("--patience", type=int, default=3, help="early stopping patience")
+    parser.add_argument(
+        "--lradj", type=str, default="type1", help="adjust learning rate"
+    )
 
     # GPU
     parser.add_argument("--use_gpu", type=bool, default=True, help="use gpu")
@@ -88,11 +91,10 @@ if __name__ == "__main__":
     print(f"输入特征大小: {args.input_size}")
     print(f"隐藏层大小: {args.hidden_size}")
     print(f"输出特征大小: {args.output_size}")
-    print(f"隐藏层数量: {args.num_hidden_layers}")
     print(f"dropout比率: {args.dropout_rate}")
 
     # 根据模型类型打印特有参数
-    if args.model == "DLinear":
+    if args.model == "DLinear" or args.model == "DLinearformer":
         print(f"是否独立建模: {args.individual}")
         print(f"分解核大小: {args.decomp_kernel}")
     elif args.model in ["LSTM", "GRU"]:
@@ -100,7 +102,7 @@ if __name__ == "__main__":
     elif args.model == "TCN":
         print(f"卷积核大小: {args.kernel_size}")
         print(f"通道数: {args.num_channels}")
-    elif args.model == "Transformer":
+    elif args.model == "Transformer" or args.model == "DLinearformer":
         print(f"模型维度: {args.d_model}")
         print(f"注意力头数: {args.n_heads}")
         print(f"前馈网络维度: {args.d_ff}")

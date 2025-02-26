@@ -23,9 +23,10 @@ class Model(nn.Module):
     
     def forward(self, x_enc, x_dec):
         # x_enc: [Batch, time_window, input_size]
+        x = torch.cat((x_enc, x_dec),dim=1)
         
         # GRU 前向传播
-        output, _ = self.gru(x_enc)
+        output, _ = self.gru(x)
         
         # 只使用最后一个时间步的输出进行预测
         last_hidden = output[:, -1, :]
