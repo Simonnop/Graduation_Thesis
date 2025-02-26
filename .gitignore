@@ -12,6 +12,6 @@ logs/
 *.log
 *.pth
 *.npy
-*.fig
+*.png
 data/raw/
 
