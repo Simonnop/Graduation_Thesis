@@ -127,6 +127,20 @@ if __name__ == "__main__":
         torch.cuda.empty_cache()
     else:
         exp = Exp(args)  # set experiments
+        setting = f"{args.data}/{args.model}"
+        checkpoint_path = os.path.join(args.checkpoints, setting, 'checkpoint.pth')
+        
+        # 检查模型是否已训练过
+        if not os.path.exists(checkpoint_path):
+            print(f">>>>>>>模型 {setting} 尚未训练，自动开始训练过程<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+            # 临时修改训练状态
+            args.is_training = 1
+            exp.train(setting)
+            # 恢复测试状态
+            args.is_training = 0
+            # 重新初始化实验对象
+            exp = Exp(args)
+        
         print(">>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<".format(setting))
         exp.test(setting, test=1)
         torch.cuda.empty_cache()

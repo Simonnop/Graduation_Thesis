@@ -40,12 +40,19 @@ def calcu_loss(pred, true):
         # MSPE
         mspe = torch.mean((diff / (true + 1e-8)) ** 2)
         
+        # R2 (决定系数)
+        true_mean = torch.mean(true)
+        total_variance = torch.sum((true - true_mean) ** 2)
+        residual_variance = torch.sum((true - pred) ** 2)
+        r2 = 1 - (residual_variance / (total_variance + 1e-8))
+        
         return {
             'mse': mse.item(),
             'mae': mae.item(), 
             'rmse': rmse.item(),
             'mape': mape.item(),
-            'mspe': mspe.item()
+            'mspe': mspe.item(),
+            'r2': r2.item()
         }
 
 

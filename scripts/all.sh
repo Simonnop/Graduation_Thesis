@@ -17,6 +17,6 @@ bash scripts/tcn.sh
 bash scripts/dlinear.sh
 bash scripts/dgru.sh
 bash scripts/transformer.sh
-bash scripts/dlinearformer.sh
+# bash scripts/dlinearformer.sh
 
 echo "所有模型训练完成！"

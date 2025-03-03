@@ -224,25 +224,33 @@ class Exp_Forecast(Exp_Basic):
         plt.close()
         
         # 保存结果到CSV
-        results_path = f'./results/metrics_{self.args.data}.csv'
+        results_path = f'./results/metrics.csv'
         results_dict = {
             'model': self.args.model,
+            'dataset': self.args.data,
             'MSE': metrics['mse'],
             'MAE': metrics['mae'],
             'RMSE': metrics['rmse'],
             'MAPE': metrics['mape'],
-            'MSPE': metrics['mspe']
+            'MSPE': metrics['mspe'],
+            'R2': metrics['r2']
         }
         
         df_new = pandas.DataFrame([results_dict])
         if os.path.exists(results_path):
             df_existing = pandas.read_csv(results_path)
-            # 检查模型是否已存在
-            if self.args.model in df_existing['model'].values:
-                # 更新已存在模型的指标值
-                model_idx = df_existing.index[df_existing['model'] == self.args.model][0]
-                df_existing.iloc[model_idx] = df_new.iloc[0]
-                df = df_existing
+            # 检查模型和数据集是否已存在
+            if ((self.args.model in df_existing['model'].values) and 
+                (self.args.data in df_existing['dataset'].values)):
+                # 更新已存在模型和数据集的指标值
+                idx_mask = (df_existing['model'] == self.args.model) & (df_existing['dataset'] == self.args.data)
+                if any(idx_mask):
+                    model_idx = df_existing.index[idx_mask][0]
+                    df_existing.iloc[model_idx] = df_new.iloc[0]
+                    df = df_existing
+                else:
+                    # 如果没有找到匹配的行，则追加新行
+                    df = pandas.concat([df_existing, df_new], ignore_index=True)
             else:
                 # 如果模型不存在，则追加新行
                 df = pandas.concat([df_existing, df_new], ignore_index=True)
@@ -253,6 +261,7 @@ class Exp_Forecast(Exp_Basic):
 
         print('---------------------------------')
         print("Test Metrics:")
+        print(f"Dataset: {self.args.data}")
         for metric_name, value in metrics.items():
             print(f"{metric_name.upper()}: {value:.4f}")
         print('---------------------------------')

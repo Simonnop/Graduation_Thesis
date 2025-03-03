@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-def load_and_process_data(file_path='data/processed/Huron_5min_merged.csv'):
+def load_and_process_data(file_path='data/processed/Victoria_5min_merged.csv'):
     """
     加载并处理数据,根据表2-1的分类进行汇总
     """
